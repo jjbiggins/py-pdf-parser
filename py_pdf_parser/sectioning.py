@@ -161,7 +161,7 @@ class Sectioning:
         """
         return (
             self.sections_dict[f"{name}_{idx}"]
-            for idx in range(0, self.name_counts[name])
+            for idx in range(self.name_counts[name])
         )
 
     def get_section(self, unique_name: str) -> Section:

@@ -4,8 +4,8 @@ import sys
 from setuptools import find_packages, setup
 
 if sys.version_info < (3, 6):
-    print(sys.stderr, "{}: need Python 3.6 or later.".format(sys.argv[0]))
-    print(sys.stderr, "Your Python is {}".format(sys.version))
+    print(sys.stderr, f"{sys.argv[0]}: need Python 3.6 or later.")
+    print(sys.stderr, f"Your Python is {sys.version}")
     sys.exit(1)
 
 

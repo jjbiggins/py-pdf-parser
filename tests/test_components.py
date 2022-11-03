@@ -110,13 +110,13 @@ class TestPDFElement(BaseTestCase):
         self.assertEqual(element.tags, set())
 
         element.add_tag("foo")
-        self.assertEqual(element.tags, set(["foo"]))
+        self.assertEqual(element.tags, {"foo"})
 
         element.add_tag("foo")
-        self.assertEqual(element.tags, set(["foo"]))
+        self.assertEqual(element.tags, {"foo"})
 
         element.add_tag("bar")
-        self.assertEqual(element.tags, set(["foo", "bar"]))
+        self.assertEqual(element.tags, {"foo", "bar"})
 
     def test_repr(self):
         element = create_pdf_element(font_name="test_font", font_size=2)
@@ -263,7 +263,7 @@ class TestPDFDocument(BaseTestCase):
             el_page_1_bottom_right, pdf_page_1.end_element.original_element
         )
         self.assertEqual(pdf_page_1.page_number, 1)
-        self.assertEqual(pdf_page_1.elements, ElementList(document, set([0, 1, 2, 3])))
+        self.assertEqual(pdf_page_1.elements, ElementList(document, {0, 1, 2, 3}))
 
         pdf_page_2 = document.get_page(2)
         self.assertEqual(page_2.width, pdf_page_2.width)
@@ -273,13 +273,14 @@ class TestPDFDocument(BaseTestCase):
             el_page_2_bottom_right, pdf_page_2.end_element.original_element
         )
         self.assertEqual(pdf_page_2.page_number, 2)
-        self.assertEqual(pdf_page_2.elements, ElementList(document, set([4, 5, 6, 7])))
+        self.assertEqual(pdf_page_2.elements, ElementList(document, {4, 5, 6, 7}))
 
         self.assertEqual(document.pages, [pdf_page_1, pdf_page_2])
 
         self.assertEqual(
-            document.elements, ElementList(document, set([0, 1, 2, 3, 4, 5, 6, 7]))
+            document.elements, ElementList(document, {0, 1, 2, 3, 4, 5, 6, 7})
         )
+
         with self.assertRaises(PageNotFoundError):
             document.get_page(3)
 

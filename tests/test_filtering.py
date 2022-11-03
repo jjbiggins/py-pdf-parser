@@ -163,14 +163,12 @@ class TestFiltering(BaseTestCase):
 
         self.assertEqual(len(doc.elements.filter_by_font("foo,2")), 1)
         # Check if "foo,2" has been added to cache
-        self.assertEqual(doc._element_indexes_by_font, {"foo,2": set([0])})
+        self.assertEqual(doc._element_indexes_by_font, {"foo,2": {0}})
         self.assert_original_element_in(elem1, doc.elements.filter_by_font("foo,2"))
 
         # Check we can still filter for another font which is not in cache
         self.assertEqual(len(doc.elements.filter_by_font("bar,3")), 1)
-        self.assertEqual(
-            doc._element_indexes_by_font, {"foo,2": set([0]), "bar,3": set([1])}
-        )
+        self.assertEqual(doc._element_indexes_by_font, {"foo,2": {0}, "bar,3": {1}})
         self.assert_original_element_in(elem2, doc.elements.filter_by_font("bar,3"))
 
         doc = create_pdf_document([elem1, elem2], font_mapping={"foo,2": "font_a"})
@@ -179,7 +177,7 @@ class TestFiltering(BaseTestCase):
 
         self.assertEqual(len(doc.elements.filter_by_font("font_a")), 1)
         # Check if "font_a" has been added to cache
-        self.assertEqual(doc._element_indexes_by_font, {"font_a": set([0])})
+        self.assertEqual(doc._element_indexes_by_font, {"font_a": {0}})
         self.assert_original_element_in(elem1, doc.elements.filter_by_font("font_a"))
 
     def test_filter_by_fonts(self):
@@ -192,9 +190,7 @@ class TestFiltering(BaseTestCase):
 
         self.assertEqual(len(doc.elements.filter_by_fonts("foo,2", "bar,3")), 2)
         # Check if "foo,2" and "bar,3" have been added to cache
-        self.assertEqual(
-            doc._element_indexes_by_font, {"foo,2": set([0]), "bar,3": set([1])}
-        )
+        self.assertEqual(doc._element_indexes_by_font, {"foo,2": {0}, "bar,3": {1}})
         self.assert_original_element_in(
             elem1, doc.elements.filter_by_fonts("foo,2", "bar,3")
         )
@@ -211,9 +207,7 @@ class TestFiltering(BaseTestCase):
 
         self.assertEqual(len(doc.elements.filter_by_fonts("font_a", "font_b")), 2)
         # Check if "font_a" and "font_b" have been added to cache
-        self.assertEqual(
-            doc._element_indexes_by_font, {"font_a": set([0]), "font_b": set([1])}
-        )
+        self.assertEqual(doc._element_indexes_by_font, {"font_a": {0}, "font_b": {1}})
         self.assert_original_element_in(
             elem1, doc.elements.filter_by_fonts("font_a", "font_b")
         )
@@ -231,7 +225,7 @@ class TestFiltering(BaseTestCase):
         )
         self.assertEqual(
             doc._element_indexes_by_font,
-            {"font_a": set([0]), "font_b": set([1]), "font_c": set([2])},
+            {"font_a": {0}, "font_b": {1}, "font_c": {2}},
         )
 
     def test_filter_by_page(self):
@@ -338,7 +332,7 @@ class TestFiltering(BaseTestCase):
         self.assertTrue(self.elem_list[4].ignored)
         self.assertTrue(self.elem_list[5].ignored)
         self.assertEqual(0, len(self.doc.elements))
-        self.assertEqual(self.doc._ignored_indexes, set([0, 1, 2, 3, 4, 5]))
+        self.assertEqual(self.doc._ignored_indexes, {0, 1, 2, 3, 4, 5})
 
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_right_of(self, partially_within_mock):
@@ -1226,11 +1220,11 @@ class TestFiltering(BaseTestCase):
         with self.assertRaises(NotImplementedError):
             self.elem_list == "foo"
 
-        second_elem_list = ElementList(self.doc, set([0, 1, 2, 3, 4, 5]))
+        second_elem_list = ElementList(self.doc, {0, 1, 2, 3, 4, 5})
         self.assertTrue(self.elem_list == second_elem_list)
 
         # Test with different indexes
-        second_elem_list = ElementList(self.doc, set([0, 1, 2, 3, 4]))
+        second_elem_list = ElementList(self.doc, {0, 1, 2, 3, 4})
         self.assertFalse(self.elem_list == second_elem_list)
 
         # Test with different document
@@ -1250,36 +1244,36 @@ class TestFiltering(BaseTestCase):
                 )
             }
         )
-        second_elem_list = ElementList(doc, set([0, 1, 2, 3, 4, 5]))
+        second_elem_list = ElementList(doc, {0, 1, 2, 3, 4, 5})
         self.assertFalse(self.elem_list == second_elem_list)
 
     def test_len(self):
         self.assertEqual(len(self.elem_list), 6)
 
     def test_sub(self):
-        list_1 = ElementList(self.doc, set([0, 1, 2, 3, 4, 5]))
-        list_2 = ElementList(self.doc, set([0, 2]))
+        list_1 = ElementList(self.doc, {0, 1, 2, 3, 4, 5})
+        list_2 = ElementList(self.doc, {0, 2})
 
         result = list_1 - list_2
-        self.assertEqual(result, ElementList(self.doc, set([1, 3, 4, 5])))
+        self.assertEqual(result, ElementList(self.doc, {1, 3, 4, 5}))
 
     def test_or(self):
-        list_1 = ElementList(self.doc, set([0, 2]))
-        list_2 = ElementList(self.doc, set([2, 3, 4]))
+        list_1 = ElementList(self.doc, {0, 2})
+        list_2 = ElementList(self.doc, {2, 3, 4})
 
         result = list_1 | list_2
-        self.assertEqual(result, ElementList(self.doc, set([0, 2, 3, 4])))
+        self.assertEqual(result, ElementList(self.doc, {0, 2, 3, 4}))
 
     def test_xor(self):
-        list_1 = ElementList(self.doc, set([0, 2]))
-        list_2 = ElementList(self.doc, set([2, 3, 4]))
+        list_1 = ElementList(self.doc, {0, 2})
+        list_2 = ElementList(self.doc, {2, 3, 4})
 
         result = list_1 ^ list_2
-        self.assertEqual(result, ElementList(self.doc, set([0, 3, 4])))
+        self.assertEqual(result, ElementList(self.doc, {0, 3, 4}))
 
     def test_and(self):
-        list_1 = ElementList(self.doc, set([0, 2]))
-        list_2 = ElementList(self.doc, set([2, 3, 4]))
+        list_1 = ElementList(self.doc, {0, 2})
+        list_2 = ElementList(self.doc, {2, 3, 4})
 
         result = list_1 & list_2
-        self.assertEqual(result, ElementList(self.doc, set([2])))
+        self.assertEqual(result, ElementList(self.doc, {2}))

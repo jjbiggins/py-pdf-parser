@@ -10,10 +10,8 @@ def get_clicked_element_info(clicked_elements: Dict[MouseButton, "PDFElement"]) 
     left_element = clicked_elements.get(MouseButton.LEFT)
     right_element = clicked_elements.get(MouseButton.RIGHT)
 
-    output = []
+    output = ["Left clicked element:", "---------------------"]
 
-    output.append("Left clicked element:")
-    output.append("---------------------")
     output += _get_element_info(left_element)
     output.append("")
 
@@ -29,16 +27,18 @@ def get_clicked_element_info(clicked_elements: Dict[MouseButton, "PDFElement"]) 
 
 
 def _get_element_info(element: Optional["PDFElement"]) -> List[str]:
-    if not element:
-        return ["Click an element to see details"]
-    return [
-        f"Text: {element.text(stripped=False)}",
-        f"Font: {element.font}",
-        f"Tags: {element.tags}",
-        f"Bounding box: {element.bounding_box}",
-        f"Width: {element.bounding_box.width}",
-        f"Height: {element.bounding_box.height}",
-    ]
+    return (
+        [
+            f"Text: {element.text(stripped=False)}",
+            f"Font: {element.font}",
+            f"Tags: {element.tags}",
+            f"Bounding box: {element.bounding_box}",
+            f"Width: {element.bounding_box.width}",
+            f"Height: {element.bounding_box.height}",
+        ]
+        if element
+        else ["Click an element to see details"]
+    )
 
 
 def _get_element_comparison_info(
