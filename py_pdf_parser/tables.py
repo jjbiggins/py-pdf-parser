@@ -207,12 +207,12 @@ def extract_table(
         _fix_rows(rows, elements)
     if fix_element_in_multiple_cols:
         _fix_cols(cols, elements)
-    if sum([len(row) for row in rows]) != len(set(chain.from_iterable(rows))):
+    if sum(len(row) for row in rows) != len(set(chain.from_iterable(rows))):
         raise TableExtractionError(
             "An element is in multiple rows. If this is expected, you can try passing "
             "fix_element_in_multiple_rows=True"
         )
-    if sum([len(col) for col in cols]) != len(set(chain.from_iterable(cols))):
+    if sum(len(col) for col in cols) != len(set(chain.from_iterable(cols))):
         raise TableExtractionError(
             "An element is in multiple columns. If this is expected, you can try "
             "passing fix_element_in_multiple_cols=True"
@@ -282,7 +282,7 @@ def add_header_to_table(
     """
     _validate_table_shape(table)
     header_provided = bool(header)
-    if len(table) == 0:
+    if not table:
         return []
     if header is None:
         header = table[0]
@@ -334,11 +334,11 @@ def _validate_table_shape(table: List[List[Any]]) -> None:
     """
     Checks that all rows (and therefore all columns) are the same length.
     """
-    if len(table) < 1:
+    if not table:
         return
     first_row_len = len(table[0])
     for idx, row in enumerate(table[1:]):
-        if not len(row) == first_row_len:
+        if len(row) != first_row_len:
             raise InvalidTableError(
                 f"Table not rectangular, row 0 has {first_row_len} elements but row "
                 f"{idx + 1} has {len(row)}."
@@ -364,7 +364,7 @@ def _fix_rows(rows: Set["ElementList"], elements: "ElementList") -> None:
     in empty rows (since in my example we begin with 3 'rows' when there are only
     really 2), but these can simply be removed.
     """
-    if sum([len(row) for row in rows]) == len(set(chain.from_iterable(rows))):
+    if sum(len(row) for row in rows) == len(set(chain.from_iterable(rows))):
         # No elements are in multiple rows, return.
         return
 
@@ -389,8 +389,7 @@ def _fix_rows(rows: Set["ElementList"], elements: "ElementList") -> None:
         # Remove the element from all but the first row.
         for row in sorted_rows_with_element[1:]:
             rows.remove(row)
-            new_row = row.remove_element(element)
-            if new_row:
+            if new_row := row.remove_element(element):
                 rows.add(new_row)
                 # Update sorted rows
                 sorted_rows = [
@@ -409,7 +408,7 @@ def _fix_cols(cols: Set["ElementList"], elements: "ElementList") -> None:
     |   C   |
     ---------
     """
-    if sum([len(col) for col in cols]) == len(set(chain.from_iterable(cols))):
+    if sum(len(col) for col in cols) == len(set(chain.from_iterable(cols))):
         # No elements are in multiple cols, return.
         return
 
@@ -432,8 +431,7 @@ def _fix_cols(cols: Set["ElementList"], elements: "ElementList") -> None:
         # Remove the element from all but the first col.
         for col in sorted_cols_with_element[1:]:
             cols.remove(col)
-            new_col = col.remove_element(element)
-            if new_col:
+            if new_col := col.remove_element(element):
                 cols.add(new_col)
                 # Update sorted columns
                 sorted_columns = [
@@ -493,7 +491,4 @@ def _are_elements_equal(
     if elem_1 is None or elem_2 is None:
         return False
 
-    if elem_1.text() != elem_2.text() or elem_1.font != elem_2.font:
-        return False
-
-    return True
+    return elem_1.text() == elem_2.text() and elem_1.font == elem_2.font

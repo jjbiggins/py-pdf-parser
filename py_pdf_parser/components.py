@@ -469,7 +469,7 @@ class PDFDocument:
         Returns:
             set[str]: All the fonts in the document.
         """
-        return set(element.font for element in self.elements)
+        return {element.font for element in self.elements}
 
     def get_page(self, page_number: int) -> "PDFPage":
         """
@@ -501,10 +501,11 @@ class PDFDocument:
         Returns:
             Set[int]: The elements indexes.
         """
-        non_cached_fonts = [
-            font for font in fonts if font not in self._element_indexes_by_font.keys()
-        ]
-        if non_cached_fonts:
+        if non_cached_fonts := [
+            font
+            for font in fonts
+            if font not in self._element_indexes_by_font.keys()
+        ]:
             # If we don't have cached elements for any of the required fonts, build
             # the cache for the non cached fonts.
             for element in self._element_list:

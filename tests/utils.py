@@ -59,9 +59,7 @@ class FakePDFMinerTextElement(LTComponent):
         return FakePDFMinerIterator(font_name=self.font_name, font_size=self.font_size)
 
     def get_text(self) -> str:
-        if self.text is None:
-            return ""
-        return self.text
+        return "" if self.text is None else self.text
 
 
 def create_pdf_element(
@@ -103,13 +101,14 @@ def create_pdf_document(
     "elements" can be a list of elements (in which case a document with a single page
     will be created) or a dictionary mapping page number to its list of elements.
     """
-    if not isinstance(elements, dict):
-        pages = {1: Page(elements=elements, width=100, height=100)}
-    else:
-        pages = {
+    pages = (
+        {
             page_number: Page(elements=elements_list, width=100, height=100)
             for page_number, elements_list in elements.items()
         }
+        if isinstance(elements, dict)
+        else {1: Page(elements=elements, width=100, height=100)}
+    )
 
     return PDFDocument(
         pages=pages,

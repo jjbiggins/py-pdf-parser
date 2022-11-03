@@ -104,10 +104,7 @@ class PDFVisualiser:
 
         self.document = document
         self.current_page = current_page
-        if elements is not None:
-            self.elements = elements
-        else:
-            self.elements = document.elements
+        self.elements = elements if elements is not None else document.elements
         self.show_info = show_info
 
         self.root = root
@@ -244,12 +241,11 @@ class PDFVisualiser:
             if bbox.x0 <= x <= bbox.x1 and bbox.y0 <= y <= bbox.y1:
                 annotation += f" {element}"
                 sections_dict = self.document.sectioning.sections_dict
-                section_names = [
+                if section_names := [
                     section_name
                     for section_name, section in sections_dict.items()
                     if element in section
-                ]
-                if section_names:
+                ]:
                     sections_str = "', '".join(section_names)
                     annotation += f", SECTIONS: '{sections_str}'"
 
